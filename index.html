@@ -67,6 +67,7 @@
                     Location
                   </span>
                 </a>
+                  <!-- Clickable Location Link -->              
                 <a href="mailto:shobhapackers@gmail.com">
                   <i class="fa fa-envelope" aria-hidden="true"></i>
                   <span>
@@ -499,12 +500,26 @@ Why Visiting/Survey is necessary?
                 </div>
               </form>
             </div>
-            <div class="map_container">
+            <!--<div class="map_container">
               <div class="map">
                 <div id="googleMap"></div>
               </div>
-              <div class="btn-box">
-                <button id="showForm" class="map_btn">
+              <div class="btn-box">-->
+                <div class="map_container">
+                  <div class="map" style="width: 100%; height: 400px;">
+                    <iframe 
+                      id="googleMap"
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3885.9507117918643!2d77.59640449999999!3d13.102309000000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1857f8143819%3A0x71f59cebd469e816!2sSHOBHA%20PACKERS%20AND%20MOVERS!5e0!3m2!1sen!2sin!4v1738053168741!5m2!1sen!2sin"
+                      width="100%" 
+                      height="100%" 
+                      style="border:0;" 
+                      allowfullscreen="" 
+                      loading="lazy" 
+                      referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                  </div>
+                  <div class="btn-box" style="margin-top: 20px;">
+                    <button id="showForm" class="map_btn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
                   Form
                 </button>
               </div>
@@ -611,6 +626,11 @@ Why Visiting/Survey is necessary?
   <!-- End Google Map -->
 
   <script>
+    (function() {
+  emailjs.init("KEEP THE PUBLIC KEY IN ENV FILE "); // Replace with your actual Public Key
+    })();
+
+
     document.getElementById("contactForm").addEventListener("submit", async (event) => {
       event.preventDefault();
 
@@ -623,7 +643,10 @@ Why Visiting/Survey is necessary?
       if (!firstName || !lastName || !email || !phoneNumber || !message) {
     alert("Please fill in all the fields.");
     return; // Stop form submission
-  }
+    }
+   
+    
+
 
       const response = await fetch("/submit-form", {
         method: "POST",
@@ -638,9 +661,47 @@ Why Visiting/Survey is necessary?
       } else {
         alert("Failed to submit the form. Please try again.");
       }
+
+      const formData = {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    message,
+  };
+
+  try {
+    const response = await emailjs.send("PASTE THE SEVICE ID ", "PASTE THE TEMPLATE ID", formData);
+
+    if (response.status === 200) {
+      alert("Form submitted successfully!");
+    } else {
+      alert("Failed to submit the form. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error sending email:", error);
+    alert("Failed to submit the form. Please try again.");
+  }
+   
     });
   </script>
   
 </body>
+<!--Steps to set up  EmailJS:
+1.Create an account 
+2.In the EmailJS dashboard, click on "Email Services" in the sidebar.
+3.Click on "Add New Service".
+Select your email provider (e.g., Gmail, Outlook, Yahoo, etc.) from the list.
+4.Follow the prompts to connect your email account.
+5.After connecting, test the email service to ensure it's working. EmailJS will notify you if it’s configured successfully.
+6.In the EmailJS dashboard, click on "Email Templates" in the sidebar.
+7.Click on "Create New Template".
+8.New contact form submission:
 
+First Name: {{firstName}}
+Last Name: {{lastName}}
+Email: {{email}}
+Phone Number: {{phoneNumber}}
+Message: {{message}}
+9.Save it -->
 </html>
