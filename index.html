@@ -626,10 +626,7 @@ Why Visiting/Survey is necessary?
   <!-- End Google Map -->
 
   <script>
-    (function() {
-  emailjs.init("KEEP THE PUBLIC KEY IN ENV FILE "); // Replace with your actual Public Key
-    })();
-
+   
 
     document.getElementById("contactForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -643,11 +640,7 @@ Why Visiting/Survey is necessary?
       if (!firstName || !lastName || !email || !phoneNumber || !message) {
     alert("Please fill in all the fields.");
     return; // Stop form submission
-    }
-   
-    
-
-
+    } 
       const response = await fetch("/submit-form", {
         method: "POST",
         headers: {
@@ -661,27 +654,6 @@ Why Visiting/Survey is necessary?
       } else {
         alert("Failed to submit the form. Please try again.");
       }
-
-      const formData = {
-    firstName,
-    lastName,
-    email,
-    phoneNumber,
-    message,
-  };
-
-  try {
-    const response = await emailjs.send("PASTE THE SEVICE ID ", "PASTE THE TEMPLATE ID", formData);
-
-    if (response.status === 200) {
-      alert("Form submitted successfully!");
-    } else {
-      alert("Failed to submit the form. Please try again.");
-    }
-  } catch (error) {
-    console.error("Error sending email:", error);
-    alert("Failed to submit the form. Please try again.");
-  }
    
     });
   </script>

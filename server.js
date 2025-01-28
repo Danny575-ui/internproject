@@ -2,10 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
+const nodemailer = require('nodemailer');
 require("dotenv").config();
 
 const app = express();
-const PORT =  process.env.PORT || 3000;
+const PORT =  3000; // or process.env.PORT if you want to use an environment variable
 
 // Middleware
 app.use(bodyParser.json());
@@ -14,7 +15,11 @@ app.use(express.static(path.join(__dirname))); // Serve static files (CSS, JS, i
 
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })//
+  .connect("mongodb://localhost:27017/contactDB", { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true, 
+    serverSelectionTimeoutMS: 30000 
+  }) // process.env.MONGO_URI
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -41,11 +46,36 @@ app.post("/submit-form", async (req, res) => {
 
   try {
     const contact = new Contact({ firstName, lastName, email, phoneNumber, message });
-    await contact.save();
-    res.status(200).send("Form submitted successfully!");
+    await contact.save();  // Save to MongoDB
+    
+    // Send email via Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL, // Your Gmail address
+        pass: process.env.PASS,   // Your Gmail password or App Password
+      },
+    });
+
+    const mailOptions = {
+      from: email,  // Sender address
+      to: process.env.GMAIL, // Recipient address (your email)
+      subject: 'New Contact Form Submission',
+      text: `You have a new contact form submission:\n\nFirst Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nPhone Number: ${phoneNumber}\nMessage: ${message}`,
+    };
+
+    // Sending email and responding
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log("Error sending email:", error);
+        return res.status(500).send("Error sending email");  // Respond with error if email fails
+      }
+      console.log('Email sent: ' + info.response);
+      res.status(200).send("Form submitted and email sent!");  // Only send response here
+    });
   } catch (error) {
     console.error("Error saving form data:", error);
-    res.status(500).send("Error saving form data");
+    res.status(500).send("Error saving form data");  // Respond if form saving fails
   }
 });
 
